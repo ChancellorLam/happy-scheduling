@@ -2,6 +2,7 @@
   background-color: var(--mat-sys-primary-container);
   padding-top: 6px;
   padding-bottom: 6px;
+  margin-bottom: 2.4%;
 
   display: flex;
   justify-content: space-between;

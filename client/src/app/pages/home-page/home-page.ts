@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
+import { MatTabGroup, MatTab } from '@angular/material/tabs';
 
 @Component({
   selector: 'app-home-page',
-  imports: [],
+  imports: [MatTab, MatTabGroup],
   templateUrl: './home-page.html',
   styleUrl: './home-page.css'
 })
