@@ -1,0 +1,21 @@
+.navbar {
+  background-color: var(--mat-sys-primary-container);
+  padding-top: 6px;
+  padding-bottom: 6px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  padding-top: 6px;
+  padding-left: 24px;
+
+  display: flex;
+  justify-content: flex-start;
+}
+
+.logo img {
+  width: 84%;
+}
