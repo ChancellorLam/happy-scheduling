@@ -4,6 +4,18 @@
   margin: 0 auto;
 }
 
+.page-title {
+  font-size: clamp(1.68rem, 6vw, 2.4rem);
+  text-align: center;
+}
+
+.calculator-description {
+  border: 1px solid var(--mat-sys-outline);
+  border-radius: 12px;
+  padding: 0 16px;
+  margin: 24px 0;
+}
+
 .tab-wrapper {
   border: 1px solid var(--mat-sys-outline-variant);
   border-radius: 12px;
