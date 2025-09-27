@@ -1,11 +1,10 @@
-.tab-wrapper {
+.main-container {
   width: 90vw;
   max-width: 1200px;
   margin: 0 auto;
-  border: 1px solid #BCBCBC;
-  border-radius: 12px;
+}
 
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
+.tab-wrapper {
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 12px;
 }
