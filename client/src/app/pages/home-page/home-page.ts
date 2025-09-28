@@ -1,8 +1,10 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { MatTabGroup, MatTab } from '@angular/material/tabs';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { merge } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-home-page',
@@ -13,9 +15,49 @@ import { MatInputModule } from '@angular/material/input';
 })
 export class HomePage {
   matrixDimensions = new FormGroup({
-    numTimeSlots: new FormControl(''), // define matrix width
-    numCandidates: new FormControl(''), // define matrix height
+    // this defines matrix width and will only take positive whole numbers
+    numTimeSlots: new FormControl('', [Validators.required, Validators.pattern(/^[1-9]\d*$/)]),
+    // this defines matrix height and will only take positive whole numbers
+    numCandidates: new FormControl('', [Validators.required, Validators.pattern(/^[1-9]\d*$/)]),
   });
+  numTimeSlotsErrorMessage = signal('');
+  numCandidatesErrorMessage = signal('');
 
+
+  constructor() {
+    merge(
+      this.matrixDimensions.get('numTimeSlots')!.statusChanges,
+      this.matrixDimensions.get('numTimeSlots')!.valueChanges,
+      this.matrixDimensions.get('numCandidates')!.statusChanges,
+      this.matrixDimensions.get('numCandidates')!.valueChanges,
+    )
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.updateErrorMessage());
+  }
+
+  updateErrorMessage() {
+    const timeSlotsCtrl = this.matrixDimensions.get('numTimeSlots');
+    const candidatesCtrl = this.matrixDimensions.get('numCandidates');
+
+    if (timeSlotsCtrl?.hasError('required')) {
+      this.numTimeSlotsErrorMessage.set('You must enter a value');
+    }
+    else if (timeSlotsCtrl?.hasError('pattern')) {
+      this.numTimeSlotsErrorMessage.set('You must enter a positive whole number');
+    }
+    else {
+      this.numTimeSlotsErrorMessage.set('');
+    }
+
+    if (candidatesCtrl?.hasError('required')) {
+      this.numCandidatesErrorMessage.set('You must enter a value');
+    }
+    else if (candidatesCtrl?.hasError('pattern')) {
+      this.numCandidatesErrorMessage.set('You must enter a positive whole number');
+    }
+    else {
+      this.numCandidatesErrorMessage.set('');
+    }
+  }
 
 }

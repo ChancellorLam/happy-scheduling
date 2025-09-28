@@ -22,12 +22,18 @@
 
           <mat-form-field>
             <mat-label>Number of Time Slots</mat-label>
-            <input matInput formControlName="numTimeSlots">
+            <input matInput formControlName="numTimeSlots" (blur)="updateErrorMessage()">
+            @if (matrixDimensions.get('numTimeSlots')?.invalid) {
+              <mat-error> {{ numTimeSlotsErrorMessage() }} </mat-error>
+            }
           </mat-form-field>
 
           <mat-form-field>
             <mat-label>Number of Candidates</mat-label>
             <input matInput formControlName="numCandidates">
+            @if (matrixDimensions.get('numCandidates')?.invalid) {
+              <mat-error> {{ numCandidatesErrorMessage() }} </mat-error>
+            }
           </mat-form-field>
 
         </form>
