@@ -14,7 +14,31 @@
   </section>
 
   <mat-tab-group class="tab-wrapper">
-    <mat-tab label="Manual Creation"></mat-tab>
+    <mat-tab label="Manual Creation">
+      <section class="matrix-builder-form">
+
+        <h3>Step 1: Generate Scheduling Table</h3>
+        <form [formGroup]="matrixDimensions" class="matrix-definition">
+
+          <mat-form-field>
+            <mat-label>Number of Time Slots</mat-label>
+            <input matInput formControlName="numTimeSlots">
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Number of Candidates</mat-label>
+            <input matInput formControlName="numCandidates">
+          </mat-form-field>
+
+        </form>
+        <p>Number of Time Slots: {{ matrixDimensions.get('numTimeSlots')?.value }}</p>
+        <p>Number of Candidates: {{ matrixDimensions.get('numCandidates')?.value }}</p>
+
+        <form class="matrix-input">
+
+        </form>
+      </section>
+    </mat-tab>
     <mat-tab label="File Upload"></mat-tab>
   </mat-tab-group>
 </div>
