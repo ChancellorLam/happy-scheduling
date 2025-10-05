@@ -35,14 +35,13 @@
               <mat-error> {{ numCandidatesErrorMessage() }} </mat-error>
             }
           </mat-form-field>
-
         </form>
-        <p>Number of Time Slots: {{ matrixDimensions.get('numTimeSlots')?.value }}</p>
-        <p>Number of Candidates: {{ matrixDimensions.get('numCandidates')?.value }}</p>
 
-        <form class="matrix-input">
-
-        </form>
+        <h3>Step 2: Enter Information Into Scheduling Table</h3>
+        <app-user-input-scheduling-table
+          [rows]="numTimeSlotsValue"
+          [columns]="numCandidatesValue"
+        ></app-user-input-scheduling-table>
       </section>
     </mat-tab>
     <mat-tab label="File Upload"></mat-tab>

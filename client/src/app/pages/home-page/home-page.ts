@@ -5,10 +5,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { merge } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { UserInputSchedulingTable } from '../../shared/features/user-input-scheduling-table/user-input-scheduling-table';
 
 @Component({
   selector: 'app-home-page',
-  imports: [MatTab, MatTabGroup, MatFormFieldModule, MatInputModule, ReactiveFormsModule],
+  imports: [MatTab, MatTabGroup, MatFormFieldModule, MatInputModule, ReactiveFormsModule, UserInputSchedulingTable],
   templateUrl: './home-page.html',
   styleUrl: './home-page.css',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -33,6 +34,16 @@ export class HomePage {
     )
       .pipe(takeUntilDestroyed())
       .subscribe(() => this.updateErrorMessage());
+  }
+
+  get numCandidatesValue(): number {
+    const value = this.matrixDimensions.get('numCandidates')?.value;
+    return value ? +value : 0;
+  }
+
+  get numTimeSlotsValue(): number {
+    const value = this.matrixDimensions.get('numTimeSlots')?.value;
+    return value ? +value : 0;
   }
 
   updateErrorMessage() {
