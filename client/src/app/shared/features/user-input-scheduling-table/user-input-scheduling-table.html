@@ -1,0 +1,71 @@
+<div class="scheduling-table-container">
+  <table class="scheduling-table">
+    <!-- Header: First row with dynamic number of timeSlots -->
+    <thead>
+      <tr>
+        <th> <!-- Empty Corner Cell --> </th>
+        @for (timeSlot of timeSlots(); track $index) {
+          <th scope="col">
+            <mat-form-field appearance="fill">
+              <mat-label>Time Slot #{{ $index }}</mat-label>
+              <input
+                matInput
+                [value]="timeSlot"
+                (input)="updateTimeSlot($index, $event)"
+                autocomplete="off"
+              />
+            </mat-form-field>
+          </th>
+        }
+      </tr>
+    </thead>
+
+    <!--
+      Body: Dynamic number of rows where the first column contains a candidate and subsequent columns contain that
+      candidate's ranking for the time slot in that column
+    -->
+    <tbody>
+      @for (candidate of candidates(); track $index; let m = $index) {
+        <tr>
+          <th scope="row">
+            <mat-form-field>
+              <mat-label>Candidate #{{ $index }}</mat-label>
+              <input
+                matInput
+                [value]="candidate"
+                (input)="updateCandidate($index, $event)"
+                autocomplete="off"
+              />
+            </mat-form-field>
+          </th>
+
+          @for (_ of timeSlots(); track $index; let n = $index) {
+            <td>
+              <mat-form-field>
+                <mat-label>Ranking</mat-label>
+                <input
+                  matInput
+                  [matTooltip]="generateTooltip(m, n)"
+                  [value]="candidatesTimeSlotRankings()[m][n]"
+                  (input)="updateCandidateTimeSlotRankings(m, n, $event)"
+                  autocomplete="off"
+                />
+              </mat-form-field>
+            </td>
+          }
+        </tr>
+      }
+    </tbody>
+  </table>
+
+  <div class="button-container">
+    <button matButton="filled" (click)="submitRankings()">Basic</button>
+    <button matButton="text" (click)="clearAll()">Clear All</button>
+  </div>
+  @if (invalidSubmission) {
+    <mat-error>
+      Invalid ranking(s) detected. Rankings must be a number greater than or equal to 1. Please check all rankings and try
+      again.
+    </mat-error>
+  }
+</div>

@@ -1,0 +1,15 @@
+.scheduling-table-container {
+  padding-bottom: 24px;
+}
+
+.scheduling-table {
+  overflow: scroll;
+}
+
+.button-container {
+  padding: 24px;
+
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+}
