@@ -1,5 +1,5 @@
 <div class="scheduling-table-container">
-  <table class="scheduling-table">
+  <table>
     <!-- Header: First row with dynamic number of timeSlots -->
     <thead>
       <tr>
@@ -57,15 +57,14 @@
       }
     </tbody>
   </table>
-
-  <div class="button-container">
-    <button matButton="filled" (click)="submitRankings()">Basic</button>
-    <button matButton="text" (click)="clearAll()">Clear All</button>
-  </div>
-  @if (invalidSubmission) {
-    <mat-error>
-      Invalid ranking(s) detected. Rankings must be a number greater than or equal to 1. Please check all rankings and try
-      again.
-    </mat-error>
-  }
 </div>
+<div class="button-container">
+  <button matButton="filled" (click)="submitRankings()">Basic</button>
+  <button matButton="text" (click)="clearAll()">Clear All</button>
+</div>
+@if (invalidSubmission) {
+  <mat-error>
+    Invalid ranking(s) detected. Rankings must be a number greater than or equal to 1. Please check all rankings and try
+    again.
+  </mat-error>
+}

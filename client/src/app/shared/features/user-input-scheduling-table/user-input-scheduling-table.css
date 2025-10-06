@@ -1,9 +1,6 @@
 .scheduling-table-container {
   padding-bottom: 24px;
-}
-
-.scheduling-table {
-  overflow: scroll;
+  overflow: auto;
 }
 
 .button-container {
