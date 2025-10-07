@@ -28,7 +28,7 @@
   flex-direction: column;
 }
 
-.matrix-definition {
+.matrix-dimensions-container {
   margin: 12px auto 0;
 
   display: flex;
@@ -37,7 +37,7 @@
 
 /* desktop */
 @media (min-width: 600px) {
-  .matrix-definition {
+  .matrix-dimensions-container {
     margin-top: 12px;
 
     display: flex;

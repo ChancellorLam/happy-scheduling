@@ -7,7 +7,7 @@
         @for (timeSlot of timeSlots(); track $index) {
           <th scope="col">
             <mat-form-field appearance="fill">
-              <mat-label>Time Slot #{{ $index }}</mat-label>
+              <mat-label>Time #{{ $index }}</mat-label>
               <input
                 matInput
                 [value]="timeSlot"
@@ -25,6 +25,24 @@
       candidate's ranking for the time slot in that column
     -->
     <tbody>
+      @if (multipleAssignmentsPerTimeSlot()) {
+        <tr>
+          <td> <!-- Empty Left Cell --> </td>
+          @for (assignment of assignmentsPerTimeSlot(); track $index) {
+            <td>
+              <mat-form-field>
+                <mat-label>{{ generateAssignmentsPerTimeSlotsLabel($index) }}</mat-label>
+                <input
+                  matInput
+                  [value]="assignment"
+                  (input)="updateAssignmentsPerTimeSlot($index, $event)"
+                  autocomplete="off"
+                />
+              </mat-form-field>
+            </td>
+          }
+        </tr>
+      }
       @for (candidate of candidates(); track $index; let m = $index) {
         <tr>
           <th scope="row">
@@ -58,11 +76,19 @@
     </tbody>
   </table>
 </div>
+
 <div class="button-container">
   <button matButton="filled" (click)="submitRankings()">Schedule</button>
   <button matButton="text" (click)="clearAll()">Clear All</button>
 </div>
-@if (invalidSubmission) {
+
+@if (invalidTimeSlotAssignment) {
+  <mat-error>
+    Invalid time slot assignment(s) detected. Time slot assignments must be a whole number that is at least 1. Please
+    check all time slot assignments and try again.
+  </mat-error>
+}
+@if (invalidRanking) {
   <mat-error>
     Invalid ranking(s) detected. Rankings must be a number greater than or equal to 1. Please check all rankings and try
     again.

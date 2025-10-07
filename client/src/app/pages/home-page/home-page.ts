@@ -3,13 +3,22 @@ import { MatTabGroup, MatTab } from '@angular/material/tabs';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { merge } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { UserInputSchedulingTable } from '../../shared/features/user-input-scheduling-table/user-input-scheduling-table';
 
 @Component({
   selector: 'app-home-page',
-  imports: [MatTab, MatTabGroup, MatFormFieldModule, MatInputModule, ReactiveFormsModule, UserInputSchedulingTable],
+  imports: [
+    MatTab,
+    MatTabGroup,
+    MatFormFieldModule,
+    MatInputModule,
+    MatCheckboxModule,
+    ReactiveFormsModule,
+    UserInputSchedulingTable
+  ],
   templateUrl: './home-page.html',
   styleUrl: './home-page.css',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -20,10 +29,10 @@ export class HomePage {
     numTimeSlots: new FormControl('', [Validators.required, Validators.pattern(/^[1-9]\d*$/)]),
     // this defines matrix height and will only take positive whole numbers
     numCandidates: new FormControl('', [Validators.required, Validators.pattern(/^[1-9]\d*$/)]),
+    multipleAssignmentsPerTimeSlot: new FormControl(false)
   });
   numTimeSlotsErrorMessage = signal('');
   numCandidatesErrorMessage = signal('');
-
 
   constructor() {
     merge(
@@ -31,6 +40,8 @@ export class HomePage {
       this.matrixDimensions.get('numTimeSlots')!.valueChanges,
       this.matrixDimensions.get('numCandidates')!.statusChanges,
       this.matrixDimensions.get('numCandidates')!.valueChanges,
+      this.matrixDimensions.get('multipleAssignmentsPerTimeSlot')!.statusChanges,
+      this.matrixDimensions.get('multipleAssignmentsPerTimeSlot')!.valueChanges,
     )
       .pipe(takeUntilDestroyed())
       .subscribe(() => this.updateErrorMessage());

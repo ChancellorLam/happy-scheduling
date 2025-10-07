@@ -16,32 +16,39 @@ export class UserInputSchedulingTable {
   // inputs
   rows = input<number>(0);
   columns = input<number>(0);
+  multipleAssignmentsPerTimeSlot = input<boolean>(false);
 
   // outputs
   readonly schedulingTableSubmit = output<SchedulingTableInfo>();
 
   // component state
   readonly timeSlots = signal<string[]>([]);
+  readonly assignmentsPerTimeSlot = signal<string[]>([]);
   readonly candidates = signal<string[]>([]);
   readonly candidatesTimeSlotRankings = signal<(string | number)[][]>([]);
-  invalidSubmission = false;
+  invalidTimeSlotAssignment = false;
+  invalidRanking = false;
 
-  // effect for syncing table size, preserving values when expanding and retaining as much as possible when shrinking
+  // effect for syncing table size
   syncTableSizeEffect = effect(() => {
     const m = this.rows();
     const n = this.columns();
 
-    this.timeSlots.update((slots) =>
-      Array.from({ length: n }, (_, i) => slots[i] ?? '')
+    this.timeSlots.update((times) =>
+      Array.from({ length: n }, (_, i) => times[i] ?? '')
     );
 
     this.candidates.update((candidates) =>
       Array.from({ length: m }, (_, i) => candidates[i] ?? '')
     );
 
-    this.candidatesTimeSlotRankings.update((ranks) =>
+    this.assignmentsPerTimeSlot.update((assignments) =>
+      Array.from({ length: n }, (_, i) => assignments[i] ?? '')
+    );
+
+    this.candidatesTimeSlotRankings.update((rankings) =>
       Array.from({ length: m }, (_, i) => {
-        const row = ranks[i] ?? [];
+        const row = rankings[i] ?? [];
         return Array.from({ length: n }, (_, j) => row[j] ?? '');
       })
     );
@@ -51,13 +58,26 @@ export class UserInputSchedulingTable {
     const input = event.target as HTMLInputElement;
     const newValue = input?.value ?? '';
 
-    this.timeSlots.update(slots => {
-      const copy = [...slots];
+    this.timeSlots.update(times => {
+      const copy = [...times];
       copy[index] = newValue;
       return copy;
     });
 
     console.log(this.timeSlots());
+  }
+
+  updateAssignmentsPerTimeSlot(index: number, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const newValue = input?.value ?? '';
+
+    this.assignmentsPerTimeSlot.update(assignments => {
+      const copy = [...assignments];
+      copy[index] = newValue;
+      return copy;
+    });
+
+    console.log(this.assignmentsPerTimeSlot());
   }
 
   updateCandidate(index: number, event: Event): void {
@@ -77,8 +97,8 @@ export class UserInputSchedulingTable {
     const input = event.target as HTMLInputElement;
     const newValue = input?.value ?? '';
 
-    this.candidatesTimeSlotRankings.update(ranking => {
-      return ranking.map((row, rIndex) => {
+    this.candidatesTimeSlotRankings.update(rankings => {
+      return rankings.map((row, rIndex) => {
         if (rIndex === rowIndex) {
           const updatedRow = [...row];
           updatedRow[columnIndex] = newValue;
@@ -96,22 +116,35 @@ export class UserInputSchedulingTable {
     const timeSlot = this.timeSlots()[timeSlotIndex];
 
     const candidateName = candidate || `Candidate #${candidateIndex}`;
-    const timeSlotName = timeSlot || `Time Slot #${timeSlotIndex}`;
+    const timeSlotName = timeSlot || `Time #${timeSlotIndex}`;
 
     return `${candidateName}'s ranking for ${timeSlotName}`;
   }
 
+  generateAssignmentsPerTimeSlotsLabel(timeSlotIndex: number): string {
+    if (this.timeSlots()[timeSlotIndex] === '') {
+      return `# Slots for Time #${timeSlotIndex}`;
+    }
+
+    return `# of Slots for ${this.timeSlots()[timeSlotIndex]}`;
+  }
+
   submitRankings(): void {
     console.log('onSubmit called')
-    if (!this.allRankingsValid()) {
-      this.invalidSubmission = true;
+    this.invalidRanking = !this.allRankingsValid();
+    this.invalidTimeSlotAssignment = this.multipleAssignmentsPerTimeSlot() && !this.assignmentsPerTimeSlotValid();
+    if (this.invalidRanking || this.invalidTimeSlotAssignment) {
       return;
     }
 
-    this.invalidSubmission = false;
+    if (!this.multipleAssignmentsPerTimeSlot()) {
+      this.assignmentsPerTimeSlot.update(assignments =>
+      assignments.map(() => "1")
+      );
+    }
 
-    this.timeSlots.update(slot =>
-      slot.map((slot, i) => this.labelEmptySlot(slot, i))
+    this.timeSlots.update(times =>
+      times.map((time, i) => this.labelEmptyTime(time, i))
     );
     this.candidates.update(candidate =>
       candidate.map((candidate, i) => this.labelEmptyCandidate(candidate, i))
@@ -119,6 +152,7 @@ export class UserInputSchedulingTable {
 
     console.log({
       timeSlots: this.timeSlots(),
+      assignmentsPerTimeSlot: this.assignmentsPerTimeSlot().map(assignment => Number(assignment)),
       candidates: this.candidates(),
       candidatesTimeSlotRankings: this.candidatesTimeSlotRankings().map(row =>
         row.map(rankingValue => Number(rankingValue))
@@ -127,6 +161,7 @@ export class UserInputSchedulingTable {
 
     this.schedulingTableSubmit.emit({
       timeSlots: this.timeSlots(),
+      assignmentsPerTimeSlot: this.assignmentsPerTimeSlot().map(assignment => Number(assignment)),
       candidates: this.candidates(),
       candidatesTimeSlotRankings: this.candidatesTimeSlotRankings().map(row =>
         row.map(rankingValue => Number(rankingValue))
@@ -153,6 +188,15 @@ export class UserInputSchedulingTable {
     });
   }
 
+  allRankingsValid(): boolean {
+    return this.candidatesTimeSlotRankings().every(row =>
+      row.every(cell => this.rankingValid(cell)));
+  }
+
+  assignmentsPerTimeSlotValid(): boolean {
+    return this.assignmentsPerTimeSlot().every(assignment => this.assignmentValid(assignment));
+  }
+
   rankingValid(value: unknown): boolean {
     if (value === null || value === undefined || value === '') {
       return false;
@@ -163,12 +207,18 @@ export class UserInputSchedulingTable {
     return !isNaN(numValue) && numValue >= 1;
   }
 
-  allRankingsValid(): boolean {
-    return this.candidatesTimeSlotRankings().every(row => row.every(cell => this.rankingValid(cell)));
+  assignmentValid(value: unknown): boolean {
+    if (value === null || value === undefined || value === '') {
+      return false;
+    }
+
+    const numValue = Number(value);
+
+    return Number.isInteger(numValue) && numValue >= 1;
   }
 
-  labelEmptySlot(slot: string, index: number): string {
-    return slot.trim() === '' ? `Time Slot #${index}` : slot;
+  labelEmptyTime(time: string, index: number): string {
+    return time.trim() === '' ? `Time #${index}` : time;
   }
 
   labelEmptyCandidate(candidate: string, index: number): string {
