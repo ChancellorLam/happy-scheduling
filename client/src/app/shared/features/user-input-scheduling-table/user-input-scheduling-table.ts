@@ -23,7 +23,7 @@ export class UserInputSchedulingTable {
   // component state
   readonly timeSlots = signal<string[]>([]);
   readonly candidates = signal<string[]>([]);
-  readonly candidatesTimeSlotRankings = signal<string[][]>([]);
+  readonly candidatesTimeSlotRankings = signal<(string | number)[][]>([]);
   invalidSubmission = false;
 
   // effect for syncing table size, preserving values when expanding and retaining as much as possible when shrinking
@@ -121,7 +121,7 @@ export class UserInputSchedulingTable {
       timeSlots: this.timeSlots(),
       candidates: this.candidates(),
       candidatesTimeSlotRankings: this.candidatesTimeSlotRankings().map(row =>
-        row.map(rankingValue => rankingValue ?? 0)
+        row.map(rankingValue => Number(rankingValue))
       )
     });
 
@@ -129,7 +129,7 @@ export class UserInputSchedulingTable {
       timeSlots: this.timeSlots(),
       candidates: this.candidates(),
       candidatesTimeSlotRankings: this.candidatesTimeSlotRankings().map(row =>
-        row.map(rankingValue => rankingValue ?? 0)
+        row.map(rankingValue => Number(rankingValue))
       )
     });
 
