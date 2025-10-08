@@ -82,6 +82,12 @@
   <button matButton="text" (click)="clearAll()">Clear All</button>
 </div>
 
+@if (candidatesExceedAssignments) {
+  <mat-error>
+    There are more candidates than there are total time slots. The number of candidates cannot exceed the total number
+    of available spots. Please add more slots or reduce the number of candidates.
+  </mat-error>
+}
 @if (invalidTimeSlotAssignment) {
   <mat-error>
     Invalid time slot assignment(s) detected. Time slot assignments must be a whole number that is at least 1. Please

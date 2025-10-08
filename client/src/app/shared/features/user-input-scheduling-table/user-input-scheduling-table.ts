@@ -28,6 +28,7 @@ export class UserInputSchedulingTable {
   readonly candidatesTimeSlotRankings = signal<(string | number)[][]>([]);
   invalidTimeSlotAssignment = false;
   invalidRanking = false;
+  candidatesExceedAssignments = false;
 
   // effect for syncing table size
   syncTableSizeEffect = effect(() => {
@@ -133,6 +134,8 @@ export class UserInputSchedulingTable {
     console.log('onSubmit called')
     this.invalidRanking = !this.allRankingsValid();
     this.invalidTimeSlotAssignment = this.multipleAssignmentsPerTimeSlot() && !this.assignmentsPerTimeSlotValid();
+    this.candidatesExceedAssignments = false;
+
     if (this.invalidRanking || this.invalidTimeSlotAssignment) {
       return;
     }
@@ -141,6 +144,16 @@ export class UserInputSchedulingTable {
       this.assignmentsPerTimeSlot.update(assignments =>
       assignments.map(() => "1")
       );
+    }
+
+    const numCandidates = this.candidates().length;
+    const totalNumAssignments = this.assignmentsPerTimeSlot()
+      .map(Number)
+      .reduce((sum, n) => sum + n, 0);
+
+    if (numCandidates > totalNumAssignments) {
+      this.candidatesExceedAssignments = true;
+      return;
     }
 
     this.timeSlots.update(times =>
