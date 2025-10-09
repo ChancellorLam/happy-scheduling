@@ -132,15 +132,9 @@ export class UserInputSchedulingTable {
 
   public submitSchedulingTable(): void {
     console.log('onSubmit called')
-    this.candidatesExceedAssignments.set(false);
-
-    if (this.schedulingTableValid()) {
-      return;
-    }
-
     this.initializeAssignmentsIfDefault();
 
-    if(this.moreCandidatesThanTotalAssignments()) {
+    if (!this.schedulingTableValuesValid() && this.moreCandidatesThanTotalAssignments()) {
       return;
     }
 
@@ -184,11 +178,11 @@ export class UserInputSchedulingTable {
     });
   }
 
-  private schedulingTableValid(): boolean {
+  private schedulingTableValuesValid(): boolean {
     this.invalidRanking.set( !this.allRankingsValid() );
     this.invalidTimeSlotAssignment.set( this.multipleAssignmentsPerTimeSlot() && !this.assignmentsPerTimeSlotValid() );
 
-    return !(this.invalidRanking || this.invalidTimeSlotAssignment)
+    return !(this.invalidRanking || this.invalidTimeSlotAssignment);
   }
 
   private initializeAssignmentsIfDefault(): void {
@@ -198,6 +192,7 @@ export class UserInputSchedulingTable {
   }
 
   private moreCandidatesThanTotalAssignments(): boolean {
+    this.candidatesExceedAssignments.set(false);
     const numCandidates = this.candidates().length;
     const totalNumAssignments = this.assignmentsPerTimeSlot()
       .map(Number)
