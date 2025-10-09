@@ -14,21 +14,21 @@ import { SchedulingTableInfo } from '../../models/scheduling-table-info';
 })
 export class UserInputSchedulingTable {
   // inputs
-  rows = input<number>(0);
-  columns = input<number>(0);
-  multipleAssignmentsPerTimeSlot = input<boolean>(false);
+  public rows = input<number>(0);
+  public columns = input<number>(0);
+  public multipleAssignmentsPerTimeSlot = input<boolean>(false);
 
   // outputs
-  readonly schedulingTableSubmit = output<SchedulingTableInfo>();
+  public readonly schedulingTableSubmit = output<SchedulingTableInfo>();
 
   // component state
-  readonly timeSlots = signal<string[]>([]);
-  readonly assignmentsPerTimeSlot = signal<string[]>([]);
-  readonly candidates = signal<string[]>([]);
-  readonly candidatesTimeSlotRankings = signal<(string | number)[][]>([]);
-  invalidTimeSlotAssignment = false;
-  invalidRanking = false;
-  candidatesExceedAssignments = false;
+  public readonly timeSlots = signal<string[]>([]);
+  public readonly assignmentsPerTimeSlot = signal<string[]>([]);
+  public readonly candidates = signal<string[]>([]);
+  public readonly candidatesTimeSlotRankings = signal<(string | number)[][]>([]);
+  public invalidTimeSlotAssignment = signal<boolean>(false);
+  public invalidRanking = signal<boolean>(false);
+  public candidatesExceedAssignments = signal<boolean>(false);
 
   // effect for syncing table size
   syncTableSizeEffect = effect(() => {
@@ -55,7 +55,7 @@ export class UserInputSchedulingTable {
     );
   });
 
-  updateTimeSlot(index: number, event: Event): void {
+  public updateTimeSlot(index: number, event: Event): void {
     const input = event.target as HTMLInputElement;
     const newValue = input?.value ?? '';
 
@@ -68,7 +68,7 @@ export class UserInputSchedulingTable {
     console.log(this.timeSlots());
   }
 
-  updateAssignmentsPerTimeSlot(index: number, event: Event): void {
+  public updateAssignmentsPerTimeSlot(index: number, event: Event): void {
     const input = event.target as HTMLInputElement;
     const newValue = input?.value ?? '';
 
@@ -81,7 +81,7 @@ export class UserInputSchedulingTable {
     console.log(this.assignmentsPerTimeSlot());
   }
 
-  updateCandidate(index: number, event: Event): void {
+  public updateCandidate(index: number, event: Event): void {
     const input = event.target as HTMLInputElement;
     const newValue = input?.value ?? '';
 
@@ -94,7 +94,7 @@ export class UserInputSchedulingTable {
     console.log(this.candidates());
   }
 
-  updateCandidateTimeSlotRankings(rowIndex: number, columnIndex: number, event: Event): void {
+  public updateCandidateTimeSlotRankings(rowIndex: number, columnIndex: number, event: Event): void {
     const input = event.target as HTMLInputElement;
     const newValue = input?.value ?? '';
 
@@ -112,7 +112,7 @@ export class UserInputSchedulingTable {
     console.log(this.candidatesTimeSlotRankings());
   }
 
-  generateTooltip(candidateIndex: number, timeSlotIndex: number): string {
+  public generateTooltip(candidateIndex: number, timeSlotIndex: number): string {
     const candidate = this.candidates()[candidateIndex];
     const timeSlot = this.timeSlots()[timeSlotIndex];
 
@@ -122,7 +122,7 @@ export class UserInputSchedulingTable {
     return `${candidateName}'s ranking for ${timeSlotName}`;
   }
 
-  generateAssignmentsPerTimeSlotsLabel(timeSlotIndex: number): string {
+  public generateAssignmentsPerTimeSlotsLabel(timeSlotIndex: number): string {
     if (this.timeSlots()[timeSlotIndex] === '') {
       return `# Slots for Time #${timeSlotIndex}`;
     }
@@ -130,38 +130,21 @@ export class UserInputSchedulingTable {
     return `# of Slots for ${this.timeSlots()[timeSlotIndex]}`;
   }
 
-  submitRankings(): void {
+  public submitSchedulingTable(): void {
     console.log('onSubmit called')
-    this.invalidRanking = !this.allRankingsValid();
-    this.invalidTimeSlotAssignment = this.multipleAssignmentsPerTimeSlot() && !this.assignmentsPerTimeSlotValid();
-    this.candidatesExceedAssignments = false;
+    this.candidatesExceedAssignments.set(false);
 
-    if (this.invalidRanking || this.invalidTimeSlotAssignment) {
+    if (this.schedulingTableValid()) {
       return;
     }
 
-    if (!this.multipleAssignmentsPerTimeSlot()) {
-      this.assignmentsPerTimeSlot.update(assignments =>
-      assignments.map(() => "1")
-      );
-    }
+    this.initializeAssignmentsIfDefault();
 
-    const numCandidates = this.candidates().length;
-    const totalNumAssignments = this.assignmentsPerTimeSlot()
-      .map(Number)
-      .reduce((sum, n) => sum + n, 0);
-
-    if (numCandidates > totalNumAssignments) {
-      this.candidatesExceedAssignments = true;
+    if(this.moreCandidatesThanTotalAssignments()) {
       return;
     }
 
-    this.timeSlots.update(times =>
-      times.map((time, i) => this.labelEmptyTime(time, i))
-    );
-    this.candidates.update(candidate =>
-      candidate.map((candidate, i) => this.labelEmptyCandidate(candidate, i))
-    );
+    this.labelEmptyTimesAndCandidates();
 
     console.log({
       timeSlots: this.timeSlots(),
@@ -184,7 +167,7 @@ export class UserInputSchedulingTable {
     console.log('onSubmit success');
   }
 
-  clearAll(): void {
+  public clearAll(): void {
     const m = this.rows();
     const n = this.columns();
 
@@ -201,16 +184,53 @@ export class UserInputSchedulingTable {
     });
   }
 
-  allRankingsValid(): boolean {
+  private schedulingTableValid(): boolean {
+    this.invalidRanking.set( !this.allRankingsValid() );
+    this.invalidTimeSlotAssignment.set( this.multipleAssignmentsPerTimeSlot() && !this.assignmentsPerTimeSlotValid() );
+
+    return !(this.invalidRanking || this.invalidTimeSlotAssignment)
+  }
+
+  private initializeAssignmentsIfDefault(): void {
+    if (!this.multipleAssignmentsPerTimeSlot()) {
+      this.assignmentsPerTimeSlot.update(assignments => assignments.map(() => "1"));
+    }
+  }
+
+  private moreCandidatesThanTotalAssignments(): boolean {
+    const numCandidates = this.candidates().length;
+    const totalNumAssignments = this.assignmentsPerTimeSlot()
+      .map(Number)
+      .reduce((sum, n) => sum + n, 0);
+
+    if (numCandidates > totalNumAssignments) {
+      this.candidatesExceedAssignments.set(true);
+      console.log(this.candidatesExceedAssignments());
+      return true;
+    }
+
+    return false;
+  }
+
+  private labelEmptyTimesAndCandidates(): void {
+    this.timeSlots.update(times =>
+      times.map((time, i) => this.labelEmptyTime(time, i))
+    );
+    this.candidates.update(candidate =>
+      candidate.map((candidate, i) => this.labelEmptyCandidate(candidate, i))
+    );
+  }
+
+  private allRankingsValid(): boolean {
     return this.candidatesTimeSlotRankings().every(row =>
       row.every(cell => this.rankingValid(cell)));
   }
 
-  assignmentsPerTimeSlotValid(): boolean {
+  private assignmentsPerTimeSlotValid(): boolean {
     return this.assignmentsPerTimeSlot().every(assignment => this.assignmentValid(assignment));
   }
 
-  rankingValid(value: unknown): boolean {
+  private rankingValid(value: unknown): boolean {
     if (value === null || value === undefined || value === '') {
       return false;
     }
@@ -220,7 +240,7 @@ export class UserInputSchedulingTable {
     return !isNaN(numValue) && numValue >= 1;
   }
 
-  assignmentValid(value: unknown): boolean {
+  private assignmentValid(value: unknown): boolean {
     if (value === null || value === undefined || value === '') {
       return false;
     }
@@ -230,11 +250,11 @@ export class UserInputSchedulingTable {
     return Number.isInteger(numValue) && numValue >= 1;
   }
 
-  labelEmptyTime(time: string, index: number): string {
+  private labelEmptyTime(time: string, index: number): string {
     return time.trim() === '' ? `Time #${index}` : time;
   }
 
-  labelEmptyCandidate(candidate: string, index: number): string {
+  private labelEmptyCandidate(candidate: string, index: number): string {
     return candidate.trim() === '' ? `Candidate #${index}` : candidate;
   }
 

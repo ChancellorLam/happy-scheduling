@@ -78,23 +78,23 @@
 </div>
 
 <div class="button-container">
-  <button matButton="filled" (click)="submitRankings()">Schedule</button>
+  <button matButton="filled" (click)="submitSchedulingTable()">Schedule</button>
   <button matButton="text" (click)="clearAll()">Clear All</button>
 </div>
 
-@if (candidatesExceedAssignments) {
+@if (candidatesExceedAssignments()) {
   <mat-error>
     There are more candidates than there are total time slots. The number of candidates cannot exceed the total number
     of available spots. Please add more slots or reduce the number of candidates.
   </mat-error>
 }
-@if (invalidTimeSlotAssignment) {
+@if (invalidTimeSlotAssignment()) {
   <mat-error>
     Invalid time slot assignment(s) detected. Time slot assignments must be a whole number that is at least 1. Please
     check all time slot assignments and try again.
   </mat-error>
 }
-@if (invalidRanking) {
+@if (invalidRanking()) {
   <mat-error>
     Invalid ranking(s) detected. Rankings must be a number greater than or equal to 1. Please check all rankings and try
     again.
