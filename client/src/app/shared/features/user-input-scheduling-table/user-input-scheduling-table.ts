@@ -178,17 +178,17 @@ export class UserInputSchedulingTable {
     });
   }
 
+  private initializeAssignmentsIfDefault(): void {
+    if (!this.multipleAssignmentsPerTimeSlot()) {
+      this.assignmentsPerTimeSlot.update(assignments => assignments.map(() => "1"));
+    }
+  }
+
   private schedulingTableValuesValid(): boolean {
     this.invalidRanking.set( !this.allRankingsValid() );
     this.invalidTimeSlotAssignment.set( this.multipleAssignmentsPerTimeSlot() && !this.assignmentsPerTimeSlotValid() );
 
     return !(this.invalidRanking || this.invalidTimeSlotAssignment);
-  }
-
-  private initializeAssignmentsIfDefault(): void {
-    if (!this.multipleAssignmentsPerTimeSlot()) {
-      this.assignmentsPerTimeSlot.update(assignments => assignments.map(() => "1"));
-    }
   }
 
   private moreCandidatesThanTotalAssignments(): boolean {
@@ -218,24 +218,15 @@ export class UserInputSchedulingTable {
 
   private allRankingsValid(): boolean {
     return this.candidatesTimeSlotRankings().every(row =>
-      row.every(cell => this.rankingValid(cell)));
+      row.every(cell => this.hasPositiveIntegerValue(cell)));
   }
 
   private assignmentsPerTimeSlotValid(): boolean {
-    return this.assignmentsPerTimeSlot().every(assignment => this.assignmentValid(assignment));
+    return this.assignmentsPerTimeSlot().every(assignment => this.hasPositiveIntegerValue(assignment));
   }
 
-  private rankingValid(value: unknown): boolean {
-    if (value === null || value === undefined || value === '') {
-      return false;
-    }
-
-    const numValue = Number(value);
-
-    return !isNaN(numValue) && numValue >= 1;
-  }
-
-  private assignmentValid(value: unknown): boolean {
+  // valid inputs for rankings and assignments should be both be positive integers
+  private hasPositiveIntegerValue(value: unknown): boolean {
     if (value === null || value === undefined || value === '') {
       return false;
     }
