@@ -46,9 +46,25 @@
           [rows]="numCandidatesValue"
           [columns]="numTimeSlotsValue"
           [multipleAssignmentsPerTimeSlot]="matrixDimensions.get('multipleAssignmentsPerTimeSlot')?.value ?? false"
+          (schedulingTableSubmit)="onSchedulingTableSubmit($event)"
         ></app-user-input-scheduling-table>
       </section>
     </mat-tab>
     <mat-tab label="File Upload"></mat-tab>
   </mat-tab-group>
+
+  <table mat-table [dataSource]="dataSource()">
+    <ng-container matColumnDef="candidate">
+      <th mat-header-cell *matHeaderCellDef> Candidate </th>
+      <td mat-cell *matCellDef="let element"> {{ element.candidate }} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="assignedTimeSlot">
+      <th mat-header-cell *matHeaderCellDef> Assigned Time Slot </th>
+      <td mat-cell *matCellDef="let element"> {{ element.assignedTimeSlot }} </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
 </div>

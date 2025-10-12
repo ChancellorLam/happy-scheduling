@@ -1,12 +1,16 @@
-import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatTabGroup, MatTab } from '@angular/material/tabs';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatTableModule } from '@angular/material/table';
 import { merge } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { UserInputSchedulingTable } from '../../shared/features/user-input-scheduling-table/user-input-scheduling-table';
+import { CandidateAssignment } from '../../shared/models/candidate-assignment';
+import { GlpkSchedulerService } from '../../core/services/glpk-scheduler/glpk-scheduler-service';
+import { SchedulingTableInfo } from '../../shared/models/scheduling-table-info';
 
 @Component({
   selector: 'app-home-page',
@@ -16,6 +20,7 @@ import { UserInputSchedulingTable } from '../../shared/features/user-input-sched
     MatFormFieldModule,
     MatInputModule,
     MatCheckboxModule,
+    MatTableModule,
     ReactiveFormsModule,
     UserInputSchedulingTable
   ],
@@ -24,6 +29,9 @@ import { UserInputSchedulingTable } from '../../shared/features/user-input-sched
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HomePage {
+  // injected dependencies
+  private readonly scheduler = inject(GlpkSchedulerService)
+
   matrixDimensions = new FormGroup({
     // this defines matrix width and will only take positive whole numbers
     numTimeSlots: new FormControl('', [Validators.required, Validators.pattern(/^[1-9]\d*$/)]),
@@ -33,6 +41,8 @@ export class HomePage {
   });
   numTimeSlotsErrorMessage = signal('');
   numCandidatesErrorMessage = signal('');
+  readonly dataSource = signal<CandidateAssignment[]>([]);
+  readonly displayedColumns = ['candidate', 'assignedTimeSlot'];
 
   constructor() {
     merge(
@@ -80,6 +90,12 @@ export class HomePage {
     else {
       this.numCandidatesErrorMessage.set('');
     }
+  }
+
+  async onSchedulingTableSubmit(schedulingTable: SchedulingTableInfo): Promise<void> {
+    const result = await this.scheduler.computeOptimalSchedule(schedulingTable);
+    console.log('Solver finished, result:', result);
+    this.dataSource.set(result);
   }
 
 }
