@@ -134,7 +134,7 @@ export class UserInputSchedulingTable {
     console.log('onSubmit called')
     this.initializeAssignmentsIfDefault();
 
-    if (!this.schedulingTableValuesValid() && this.moreCandidatesThanTotalAssignments()) {
+    if (!this.schedulingTableValuesValid() || this.moreCandidatesThanTotalAssignments()) {
       return;
     }
 
@@ -188,7 +188,7 @@ export class UserInputSchedulingTable {
     this.invalidRanking.set( !this.allRankingsValid() );
     this.invalidTimeSlotAssignment.set( this.multipleAssignmentsPerTimeSlot() && !this.assignmentsPerTimeSlotValid() );
 
-    return !(this.invalidRanking || this.invalidTimeSlotAssignment);
+    return !(this.invalidRanking() || this.invalidTimeSlotAssignment());
   }
 
   private moreCandidatesThanTotalAssignments(): boolean {
