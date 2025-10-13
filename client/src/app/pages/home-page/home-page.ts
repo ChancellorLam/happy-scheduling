@@ -43,6 +43,7 @@ export class HomePage {
   numCandidatesErrorMessage = signal('');
   readonly dataSource = signal<CandidateAssignment[]>([]);
   readonly displayedColumns = ['candidate', 'assignedTimeSlot'];
+  canShowTable = signal<boolean>(false);
 
   constructor() {
     merge(
@@ -96,6 +97,9 @@ export class HomePage {
     const result = await this.scheduler.computeOptimalSchedule(schedulingTable);
     console.log('Solver finished, result:', result);
     this.dataSource.set(result);
+    if (result.length > 0) {
+      this.canShowTable.set(true);
+    }
   }
 
 }
