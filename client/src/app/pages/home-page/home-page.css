@@ -9,7 +9,7 @@
   text-align: center;
 }
 
-.calculator-description {
+.content-container {
   border: 1px solid var(--mat-sys-outline);
   border-radius: 12px;
   padding: 0 16px;
@@ -17,7 +17,7 @@
 }
 
 .tab-wrapper {
-  border: 1px solid var(--mat-sys-outline-variant);
+  border: 1px solid var(--mat-sys-outline);
   border-radius: 12px;
 }
 
@@ -45,4 +45,12 @@
     justify-content: center;
     gap: 24px;
   }
+}
+
+.table-header-spacing {
+  margin-bottom: 2rem;
+}
+
+.scroll-space {
+  height: 42vh;
 }

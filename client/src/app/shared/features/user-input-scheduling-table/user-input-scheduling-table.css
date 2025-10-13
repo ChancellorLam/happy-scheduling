@@ -1,5 +1,7 @@
 .scheduling-table-container {
-  padding-bottom: 24px;
+  padding: 24px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 12px;
   overflow: auto;
 }
 
@@ -9,4 +11,8 @@
   display: flex;
   justify-content: center;
   gap: 24px;
+}
+
+.error-container {
+  padding-bottom: 24px;
 }

@@ -2,7 +2,7 @@
 
   <h1 class="page-title">Scheduling Calculator</h1>
 
-  <section class="calculator-description">
+  <section class="content-container">
     <h2>About This Calculator</h2>
     <p>
       This calculator takes a group of candidates' rankings of how well each time slot works for them and assigns each
@@ -54,19 +54,25 @@
   </mat-tab-group>
 
   @if (canShowTable()) {
-    <table mat-table [dataSource]="dataSource()">
-      <ng-container matColumnDef="candidate">
-        <th mat-header-cell *matHeaderCellDef> Candidate </th>
-        <td mat-cell *matCellDef="let element"> {{ element.candidate }} </td>
-      </ng-container>
+    <div class="content-container">
+      <h3 class="table-header-spacing">Time Slots For Optimal Schedule:</h3>
 
-      <ng-container matColumnDef="assignedTimeSlot">
-        <th mat-header-cell *matHeaderCellDef> Assigned Time Slot </th>
-        <td mat-cell *matCellDef="let element"> {{ element.assignedTimeSlot }} </td>
-      </ng-container>
+      <table mat-table [dataSource]="dataSource()">
+        <ng-container matColumnDef="candidate">
+          <th mat-header-cell *matHeaderCellDef> Candidate </th>
+          <td mat-cell *matCellDef="let element"> {{ element.candidate }} </td>
+        </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-    </table>
+        <ng-container matColumnDef="assignedTimeSlot">
+          <th mat-header-cell *matHeaderCellDef> Assigned Time Slot </th>
+          <td mat-cell *matCellDef="let element"> {{ element.assignedTimeSlot }} </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+    </div>
   }
+
+  <div class="scroll-space"></div>
 </div>

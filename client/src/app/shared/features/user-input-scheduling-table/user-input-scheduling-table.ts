@@ -178,6 +178,10 @@ export class UserInputSchedulingTable {
     });
   }
 
+  public hasErrors(): boolean {
+    return this.invalidRanking() || this.invalidTimeSlotAssignment() || this.candidatesExceedAssignments();
+  }
+
   private initializeAssignmentsIfDefault(): void {
     if (!this.multipleAssignmentsPerTimeSlot()) {
       this.assignmentsPerTimeSlot.update(assignments => assignments.map(() => "1"));
