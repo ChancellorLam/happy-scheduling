@@ -1,8 +1,9 @@
 .navbar {
-  background-color: var(--mat-sys-primary-container);
+  background-color: light-dark(var(--mat-sys-primary-container), var(--mat-sys-surface));
   padding-top: 6px;
   padding-bottom: 6px;
   margin-bottom: 2.4%;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
 
   display: flex;
   justify-content: space-between;
